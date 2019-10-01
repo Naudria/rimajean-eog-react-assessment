@@ -34,7 +34,43 @@ const LastKnownMeasurement = props => {
 		  }
 		}
 		`;
+	const dispatch = useDispatch();
 
+  const [result] = useQuery({
+    query
+  });
+
+  const { data, fetching, error } = result;
+
+  useEffect(() => {
+    if (error) {
+      dispatch({
+        type: actions.API_ERROR,
+        error: error.message
+      });
+      return;
+    }
+    if (!data) return;
+
+    const measurementData = data.getLastKnownMeasurement;
+    setMeasurement(measurementData);
+  }, [dispatch, error, data, measurement]);
+
+  if (fetching) return <LinearProgress />;
+  return (
+    <div>
+      <Paper className={classes.root}>
+        <Typography variant="h6" >
+          {`${metric.metricName}`}
+        </Typography>
+        <Typography component="p">
+          {metric.metricName
+            ? `Last Measurement: ${measurement.value} ${measurement.unit}`
+            : null}
+        </Typography>
+      </Paper>
+    </div>
+  );
 }
 
 export default props => {
