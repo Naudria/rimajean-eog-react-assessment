@@ -1,10 +1,18 @@
 import React, { useEffect, useState } from 'react';
+import { makeStyles } from '@material-ui/core/styles';
+import LinearProgress from '@material-ui/core/LinearProgress';
+import FormControl from '@material-ui/core/FormControl';
+import Select from '@material-ui/core/Select';
+import InputLabel from '@material-ui/core/InputLabel';
+import MenuItem from '@material-ui/core/MenuItem';
+import Card from '@material-ui/core/Card';
+import CardHeader from '../CardHeader';
+import CardContent from '@material-ui/core/CardContent';
 import { Provider, createClient, useQuery } from 'urql';
 import { useDispatch } from 'react-redux';
 import * as actions from '../../store/actions';
+import MeasurementChart from './MeasurementChart';
 import LastKnownMeasurement from './LastKnownMeasurement'
-import { makeStyles } from '@material-ui/core/styles';
-import LinearProgress from '@material-ui/core/LinearProgress';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -58,7 +66,6 @@ const MeasurementCard = () => {
     </Card>
   );
 };
-
 const MetricSelect = () => {
   const classes = useStyles();
 
