@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import { Provider, createClient, useQuery } from 'urql';
-import { useDispatch } from 'react-redux';
-import * as actions from '../../store/actions';
-import LinearProgress from '@material-ui/core/LinearProgress';
+import React, { useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
+import { Provider, createClient, useQuery } from 'urql';
+import { useDispatch } from 'react-redux';
+import * as actions from '../../store/actions';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -18,29 +17,32 @@ const client = createClient({
 });
 
 const LastKnownMeasurement = props => {
-  const { metric } = props;
 
-  const [measurement, setMeasurement] = useState({metric});
+  const [measurement, setMeasurement] = React.useState([]);
 
   const classes = useStyles();
 
   const query = `
-		query {
-		  getLastKnownMeasurement(metricName: "${metric.metricName}") {
-		    metric
-		    value
-		    unit
-		    at
-		  }
-		}
-		`;
-	const dispatch = useDispatch();
+    query ($metricName: String!) {
+      getLastKnownMeasurement(metricName: $metricName) {
+        metric
+        value
+        unit
+        at
+      }
+    }
+    `;
 
-  const [result] = useQuery({
-    query
+  const dispatch = useDispatch();
+
+  const [result, executeQuery] = useQuery({
+    query,
+    variables: {
+      metricName: props.metricName
+    }
   });
 
-  const { data, fetching, error } = result;
+  const { data, error } = result;
 
   useEffect(() => {
     if (error) {
@@ -52,31 +54,36 @@ const LastKnownMeasurement = props => {
     }
     if (!data) return;
 
-    const measurementData = data.getLastKnownMeasurement;
-    setMeasurement(measurementData);
-  }, [dispatch, error, data, measurement]);
-
-  if (fetching) return <LinearProgress />;
+    setMeasurement(data.getLastKnownMeasurement);
+    const interval = setInterval(() => {
+        executeQuery({ requestPolicy: "network-only" });
+      setMeasurement(data.getLastKnownMeasurement);
+    }, 1500);
+    return () => clearInterval(interval);
+  }, [dispatch, data, error, executeQuery]);
+    
   return (
     <div>
       <Paper className={classes.root}>
         <Typography variant="h6" >
-          {`${metric.metricName}`}
+          {props.metricName}
         </Typography>
         <Typography component="p">
-          {metric.metricName
+          {props.metricName
             ? `Last Measurement: ${measurement.value} ${measurement.unit}`
             : null}
         </Typography>
       </Paper>
     </div>
   );
-}
+};
 
 export default props => {
   return (
     <Provider value={client}>
-      <LastKnownMeasurement metric={props} />
+      <LastKnownMeasurement {...props} />
     </Provider>
   );
 };
+
+
