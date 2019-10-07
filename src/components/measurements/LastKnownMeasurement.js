@@ -23,15 +23,15 @@ const LastKnownMeasurement = props => {
   const classes = useStyles();
 
   const query = `
-    query ($metricName: String!) {
-      getLastKnownMeasurement(metricName: $metricName) {
-        metric
-        value
-        unit
-        at
-      }
-    }
-    `;
+		query ($metricName: String!) {
+		  getLastKnownMeasurement(metricName: $metricName) {
+		    metric
+		    value
+		    unit
+		    at
+		  }
+		}
+		`;
 
   const dispatch = useDispatch();
 
@@ -85,5 +85,4 @@ export default props => {
     </Provider>
   );
 };
-
 
